@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Mistress Milana</title>
+    <link rel="stylesheet" href="admin-styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Login Section -->
+    <div id="loginSection" class="login-container">
+        <div class="login-box">
+            <h1>Admin Login</h1>
+            <p>Mistress Milana's Dashboard</p>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-primary">Login</button>
+                <p class="error-message" id="errorMessage"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="dashboardSection" class="dashboard-container" style="display: none;">
+        <nav class="admin-nav">
+            <div class="admin-logo">MISTRESS MILANA</div>
+            <div class="admin-tabs">
+                <button class="admin-tab active" data-tab="gallery">Gallery</button>
+                <button class="admin-tab" data-tab="news">News</button>
+            </div>
+            <div class="admin-user">
+                <span id="adminUsername">Admin</span>
+                <button id="logoutBtn" class="btn-logout">Logout</button>
+            </div>
+        </nav>
+
+        <!-- Gallery Tab Content -->
+        <div class="dashboard-content tab-content" id="galleryTab">
+            <div class="dashboard-header">
+                <h1>Gallery Management</h1>
+                <p>Upload and manage gallery images</p>
+            </div>
+
+            <!-- About Me Image Section -->
+            <div class="upload-section">
+                <h2>About Me Image</h2>
+                <p class="section-subtitle">Update the profile image shown in the About section</p>
+                <div class="about-image-section">
+                    <div class="current-about-image">
+                        <img id="currentAboutImage" src="" alt="Current About Image" style="width: 100%; height: 400px; object-fit: cover; border: 2px solid var(--border-color); border-radius: 8px;">
+                        <p style="text-align: center; margin-top: 10px; color: var(--medium-text);">Current Image</p>
+                    </div>
+                    <div class="about-image-upload">
+                        <input type="file" id="aboutImageInput" accept="image/*" style="display: none;">
+                        <button type="button" class="btn-upload" onclick="document.getElementById('aboutImageInput').click()">
+                            Choose New About Image
+                        </button>
+                        <button id="uploadAboutButton" class="btn-primary" style="display: none; margin-top: 15px;">Update About Image</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <h2>Gallery Images</h2>
+                <p class="section-subtitle">Upload images to the gallery section</p>
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📷</div>
+                    <p>Drag & drop images here or click to browse</p>
+                    <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+                    <button type="button" class="btn-upload" onclick="document.getElementById('fileInput').click()">
+                        Choose Images
+                    </button>
+                </div>
+                <div id="previewContainer" class="preview-container"></div>
+                <button id="uploadButton" class="btn-primary" style="display: none;">Upload Images</button>
+            </div>
+
+            <!-- Gallery Management -->
+            <div class="gallery-management">
+                <h2>Current Gallery Images</h2>
+                <div class="gallery-stats">
+                    <div class="stat-card">
+                        <span class="stat-number" id="totalImages">0</span>
+                        <span class="stat-label">Total Images</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="recentUploads">0</span>
+                        <span class="stat-label">Recent Uploads</span>
+                    </div>
+                </div>
+                <div id="galleryGrid" class="admin-gallery-grid"></div>
+            </div>
+        </div>
+
+        <!-- News Tab Content -->
+        <div class="dashboard-content tab-content" id="newsTab" style="display: none;">
+            <div class="dashboard-header">
+                <h1>News & Events Management</h1>
+                <p>Create and manage news cards for events</p>
+            </div>
+
+            <div class="news-form-section">
+                <h3>Create New Event Card</h3>
+                <form id="newsForm" class="news-form">
+                    <div class="form-group">
+                        <label for="newsTitle">Event Title *</label>
+                        <input type="text" id="newsTitle" required placeholder="Enter event title">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newsDescription">Event Description *</label>
+                        <textarea id="newsDescription" required rows="4" placeholder="Describe the event"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="newsDate">Event Date *</label>
+                            <input type="date" id="newsDate" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="newsCategory">Category</label>
+                            <select id="newsCategory">
+                                <option value="Event">Event</option>
+                                <option value="Session">Session</option>
+                                <option value="Announcement">Announcement</option>
+                                <option value="Workshop">Workshop</option>
+                                <option value="Exclusive">Exclusive</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newsLocation">Location (Optional)</label>
+                        <input type="text" id="newsLocation" placeholder="Event location">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newsImage">Event Image *</label>
+                        <input type="file" id="newsImage" accept="image/*" required style="display: none;">
+                        <button type="button" class="btn-upload" onclick="document.getElementById('newsImage').click()">
+                            Choose Image
+                        </button>
+                        <div id="newsImagePreview" class="image-preview-small" style="margin-top: 15px;"></div>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">Create Event Card</button>
+                </form>
+            </div>
+            
+            <div class="current-news-section">
+                <h3>Current News & Events</h3>
+                <div id="newsCardsGrid" class="news-cards-grid"></div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script src="admin-backend.js"></script>
+</body>
+</html>
