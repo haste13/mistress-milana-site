@@ -10,6 +10,27 @@ const STORAGE_KEYS = {
 let selectedFiles = [];
 let selectedAboutImage = null;
 
+// Helper function to trigger file input (works better on mobile)
+function triggerGalleryFileInput() {
+    const fileInput = document.getElementById('fileInput');
+    fileInput.value = null; // Reset to ensure change event fires
+    fileInput.click();
+}
+
+// Helper function for about image input
+function triggerAboutFileInput() {
+    const aboutInput = document.getElementById('aboutImageInput');
+    aboutInput.value = null; // Reset to ensure change event fires
+    aboutInput.click();
+}
+
+// Helper function for news image input
+function triggerNewsFileInput() {
+    const newsInput = document.getElementById('newsImage');
+    newsInput.value = null; // Reset to ensure change event fires
+    newsInput.click();
+}
+
 // Get auth token from localStorage
 function getAuthToken() {
     return localStorage.getItem(STORAGE_KEYS.authToken);
@@ -165,11 +186,15 @@ const previewContainer = document.getElementById('previewContainer');
 const uploadButton = document.getElementById('uploadButton');
 
 fileInput.addEventListener('change', (e) => {
-    handleFiles(e.target.files);
+    if (e.target.files && e.target.files.length > 0) {
+        handleFiles(e.target.files);
+    }
 });
 
 // Drag and Drop Handlers
 uploadArea.addEventListener('click', () => {
+    // Reset file input before opening to ensure change event fires
+    fileInput.value = null;
     fileInput.click();
 });
 
@@ -285,10 +310,10 @@ uploadButton.addEventListener('click', async () => {
             showSuccessMessage(`${uploadedCount} image(s) uploaded successfully to Backblaze B2!`);
         }
 
-        // Reset
+        // Reset state completely
         selectedFiles = [];
         previewContainer.innerHTML = '';
-        fileInput.value = '';
+        fileInput.value = null; // Use null to fully reset
         uploadButton.style.display = 'none';
         uploadButton.disabled = false;
         uploadButton.textContent = 'Upload Images';
@@ -438,13 +463,16 @@ aboutImageInput.addEventListener('change', (e) => {
     if (e.target.files && e.target.files[0]) {
         selectedAboutImage = e.target.files[0];
 
-        // Preview the image
+        // Preview the image immediately
         const reader = new FileReader();
         reader.onload = (event) => {
-            document.getElementById('currentAboutImage').src = event.target.result;
+            const imgElement = document.getElementById('currentAboutImage');
+            imgElement.src = event.target.result;
+            imgElement.style.display = 'block';
         };
         reader.readAsDataURL(selectedAboutImage);
 
+        // Show upload button
         uploadAboutButton.style.display = 'block';
     }
 });
@@ -524,9 +552,10 @@ newsImageInput.addEventListener('change', (e) => {
     if (e.target.files && e.target.files[0]) {
         selectedNewsImage = e.target.files[0];
 
+        // Preview the image immediately
         const reader = new FileReader();
         reader.onload = (event) => {
-            newsImagePreview.innerHTML = `<img src="${event.target.result}" alt="Preview" style="width: 100%; height: auto; border-radius: 6px;">`;
+            newsImagePreview.innerHTML = `<img src="${event.target.result}" alt="Preview" style="width: 100%; height: auto; border-radius: 6px; display: block;">`;
         };
         reader.readAsDataURL(selectedNewsImage);
     }

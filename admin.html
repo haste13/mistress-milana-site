@@ -62,7 +62,7 @@
                     </div>
                     <div class="about-image-upload">
                         <input type="file" id="aboutImageInput" accept="image/*" style="display: none;">
-                        <button type="button" class="btn-upload" onclick="document.getElementById('aboutImageInput').click()">
+                        <button type="button" class="btn-upload" onclick="triggerAboutFileInput()">
                             Choose New About Image
                         </button>
                         <button id="uploadAboutButton" class="btn-primary" style="display: none; margin-top: 15px;">Update About Image</button>
@@ -78,7 +78,7 @@
                     <div class="upload-icon">📷</div>
                     <p>Drag & drop images here or click to browse</p>
                     <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
-                    <button type="button" class="btn-upload" onclick="document.getElementById('fileInput').click()">
+                    <button type="button" class="btn-upload" onclick="triggerGalleryFileInput()">
                         Choose Images
                     </button>
                 </div>
@@ -149,7 +149,7 @@
                     <div class="form-group">
                         <label for="newsImage">Event Image *</label>
                         <input type="file" id="newsImage" accept="image/*" required style="display: none;">
-                        <button type="button" class="btn-upload" onclick="document.getElementById('newsImage').click()">
+                        <button type="button" class="btn-upload" onclick="triggerNewsFileInput()">
                             Choose Image
                         </button>
                         <div id="newsImagePreview" class="image-preview-small" style="margin-top: 15px;"></div>
