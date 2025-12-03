@@ -645,7 +645,7 @@ document.getElementById('newsForm').addEventListener('submit', async (e) => {
             category: document.getElementById('newsCategory').value,
             location: document.getElementById('newsLocation').value,
             imageUrl: uploadResult.url,
-            imageId: uploadResult.fileId,
+            imageId: uploadResult.id, // Use 'id' not 'fileId'
             imageFileName: uploadResult.fileName
         };
 
