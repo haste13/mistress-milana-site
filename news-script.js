@@ -15,10 +15,10 @@ async function loadNewsCards() {
     
     if (!newsGrid) return;
     
-    newsGrid.innerHTML = '';
+    newsGrid.innerHTML = '<div class="news-loading">Loading news...</div>';
     
     try {
-        const response = await fetch('http://localhost:3000/api/news');
+        const response = await fetch('https://mistress-milana-backend.vercel.app/api/news');
         
         if (!response.ok) {
             throw new Error('Failed to fetch news');
@@ -67,7 +67,7 @@ async function loadNewsCards() {
         newsGrid.innerHTML = `
             <div class="news-empty">
                 <div class="news-empty-icon">⚠️</div>
-                <p>Unable to load news. Please make sure the server is running.</p>
+                <p>Unable to load news. Please check back later.</p>
             </div>
         `;
     }
