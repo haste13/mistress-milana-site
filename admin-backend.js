@@ -625,6 +625,9 @@ document.getElementById('newsForm').addEventListener('submit', async (e) => {
 
         const uploadResponse = await fetch(`${API_URL}/upload`, {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${getAuthToken()}`
+            },
             body: formData
         });
 
