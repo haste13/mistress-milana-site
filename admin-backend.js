@@ -784,10 +784,13 @@ async function loadNewsCardsAdmin() {
 
 // Delete News Card
 async function deleteNewsCard(cardId, imageId, imageFileName) {
-    if (!confirm('Are you sure you want to delete this event card?')) return;
+    if (!confirm('Are you sure you want to delete this event card? This action cannot be undone.')) return;
 
     try {
+        console.log('Deleting news card:', cardId);
+        
         // Delete image from B2
+        console.log('Deleting image from B2:', imageId, imageFileName);
         const imageResponse = await fetch(`${API_URL}/delete/${imageId}/${imageFileName}`, {
             method: 'DELETE',
             headers: {
@@ -796,10 +799,13 @@ async function deleteNewsCard(cardId, imageId, imageFileName) {
         });
 
         if (!imageResponse.ok) {
+            const errorText = await imageResponse.text();
+            console.error('Failed to delete image:', imageResponse.status, errorText);
             throw new Error('Failed to delete image from B2');
         }
 
         // Delete from MongoDB
+        console.log('Deleting news card from database:', cardId);
         const response = await fetch(`${API_URL}/news/${cardId}`, {
             method: 'DELETE',
             headers: {
@@ -808,17 +814,21 @@ async function deleteNewsCard(cardId, imageId, imageFileName) {
         });
 
         if (!response.ok) {
-            throw new Error('Failed to delete news card');
+            const errorText = await response.text();
+            console.error('Failed to delete news card:', response.status, errorText);
+            throw new Error('Failed to delete news card from database');
         }
+
+        console.log('News card deleted successfully');
 
         // Reload display
         await loadNewsCardsAdmin();
 
-        showSuccessMessage('Event card deleted successfully!');
+        showSuccessMessage('Event card deleted successfully from B2 and database!');
 
     } catch (error) {
         console.error('Error deleting news card:', error);
-        alert('Failed to delete event card. Please try again.');
+        alert('Failed to delete event card: ' + error.message);
     }
 }
 
