@@ -297,12 +297,43 @@ function openLightbox(imageSrc) {
 }
 
 // Load About Image from Admin Panel
-function loadAboutImageFromAdmin() {
-    const aboutImageUrl = localStorage.getItem('website_about_image');
+async function loadAboutImageFromAdmin() {
     const aboutImageContainer = document.getElementById('aboutImageContainer');
     
-    if (aboutImageUrl && aboutImageContainer) {
-        // Replace placeholder with actual image
+    if (!aboutImageContainer) return;
+
+    try {
+        // Fetch from backend API
+        const response = await fetch('https://mistress-milana-backend.vercel.app/api/about-image');
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            if (data.success && data.image && data.image.url) {
+                // Replace placeholder with actual image
+                aboutImageContainer.innerHTML = '';
+                aboutImageContainer.style.background = 'none';
+                aboutImageContainer.style.border = 'none';
+                
+                const img = document.createElement('img');
+                img.src = data.image.url;
+                img.alt = 'Mistress Milana';
+                img.style.cssText = 'width: 100%; height: auto; object-fit: cover; border: 3px solid var(--accent-gold); border-radius: 5px;';
+                
+                aboutImageContainer.appendChild(img);
+                
+                // Cache in localStorage
+                localStorage.setItem('website_about_image', data.image.url);
+                return;
+            }
+        }
+    } catch (error) {
+        console.log('Could not fetch about image from API, trying localStorage');
+    }
+
+    // Fallback to localStorage
+    const aboutImageUrl = localStorage.getItem('website_about_image');
+    if (aboutImageUrl) {
         aboutImageContainer.innerHTML = '';
         aboutImageContainer.style.background = 'none';
         aboutImageContainer.style.border = 'none';

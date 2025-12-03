@@ -481,7 +481,7 @@ uploadAboutButton.addEventListener('click', async () => {
     if (!selectedAboutImage) return;
 
     uploadAboutButton.disabled = true;
-    uploadAboutButton.innerHTML = '<span class="loading"></span> Uploading...';
+    uploadAboutButton.innerHTML = '<span class="loading"></span> Uploading to B2...';
 
     try {
         const formData = new FormData();
@@ -489,6 +489,9 @@ uploadAboutButton.addEventListener('click', async () => {
 
         const response = await fetch(`${API_URL}/upload`, {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${getAuthToken()}`
+            },
             body: formData
         });
 
@@ -499,16 +502,39 @@ uploadAboutButton.addEventListener('click', async () => {
         const result = await response.json();
 
         if (result.success) {
-            // Save the about image URL
+            // Save the about image to MongoDB via backend
+            const saveResponse = await fetch(`${API_URL}/about-image`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getAuthToken()}`
+                },
+                body: JSON.stringify({
+                    url: result.url,
+                    fileId: result.id,
+                    fileName: result.fileName
+                })
+            });
+
+            if (!saveResponse.ok) {
+                throw new Error('Failed to save image reference to database');
+            }
+
+            // Update localStorage as backup
             localStorage.setItem('about_image_url', result.url);
             localStorage.setItem('about_image_data', JSON.stringify(result));
+
+            // Update the displayed image with the B2 URL
+            document.getElementById('currentAboutImage').src = result.url;
 
             // Update main website
             syncAboutImageToWebsite();
 
-            showSuccessMessage('About Me image updated successfully!');
+            showSuccessMessage('About Me image updated successfully on Backblaze B2 and database!');
+            
+            // Reset state
             selectedAboutImage = null;
-            aboutImageInput.value = '';
+            aboutImageInput.value = null;
             uploadAboutButton.style.display = 'none';
         }
 
@@ -517,13 +543,30 @@ uploadAboutButton.addEventListener('click', async () => {
 
     } catch (error) {
         console.error('Upload error:', error);
-        alert('Upload failed. Make sure the backend server is running.');
+        alert('Upload failed. Check console for details and ensure you are logged in.');
         uploadAboutButton.disabled = false;
         uploadAboutButton.textContent = 'Update About Image';
     }
 });
 
-function loadAboutImage() {
+async function loadAboutImage() {
+    try {
+        // Try to fetch from backend API first
+        const response = await fetch(`${API_URL}/about-image`);
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.image && data.image.url) {
+                document.getElementById('currentAboutImage').src = data.image.url;
+                // Update localStorage as cache
+                localStorage.setItem('about_image_url', data.image.url);
+                return;
+            }
+        }
+    } catch (error) {
+        console.log('Could not fetch about image from API, trying localStorage');
+    }
+
+    // Fallback to localStorage
     const aboutImageUrl = localStorage.getItem('about_image_url');
     if (aboutImageUrl) {
         document.getElementById('currentAboutImage').src = aboutImageUrl;
