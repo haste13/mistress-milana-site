@@ -789,19 +789,23 @@ async function deleteNewsCard(cardId, imageId, imageFileName) {
     try {
         console.log('Deleting news card:', cardId);
         
-        // Delete image from B2
-        console.log('Deleting image from B2:', imageId, imageFileName);
-        const imageResponse = await fetch(`${API_URL}/delete/${imageId}/${imageFileName}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${getAuthToken()}`
-            }
-        });
+        // Only try to delete image from B2 if imageId exists
+        if (imageId && imageId !== 'undefined') {
+            console.log('Deleting image from B2:', imageId, imageFileName);
+            const imageResponse = await fetch(`${API_URL}/delete/${imageId}/${imageFileName}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${getAuthToken()}`
+                }
+            });
 
-        if (!imageResponse.ok) {
-            const errorText = await imageResponse.text();
-            console.error('Failed to delete image:', imageResponse.status, errorText);
-            throw new Error('Failed to delete image from B2');
+            if (!imageResponse.ok) {
+                const errorText = await imageResponse.text();
+                console.warn('Failed to delete image (may already be deleted):', imageResponse.status, errorText);
+                // Continue anyway to delete the card from database
+            }
+        } else {
+            console.warn('No imageId found, skipping B2 deletion');
         }
 
         // Delete from MongoDB
@@ -824,7 +828,7 @@ async function deleteNewsCard(cardId, imageId, imageFileName) {
         // Reload display
         await loadNewsCardsAdmin();
 
-        showSuccessMessage('Event card deleted successfully from B2 and database!');
+        showSuccessMessage('Event card deleted successfully!');
 
     } catch (error) {
         console.error('Error deleting news card:', error);
