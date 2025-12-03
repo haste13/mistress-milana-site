@@ -199,47 +199,49 @@ window.addEventListener('load', () => {
     loadAboutImageFromAdmin();
 });
 
-// Load Gallery Images from Admin Panel (Backblaze B2)
-function loadGalleryFromAdmin() {
-    const galleryImages = localStorage.getItem('website_gallery_images');
+// Load Gallery Images from Backend API (Backblaze B2)
+async function loadGalleryFromAdmin() {
     const galleryGrid = document.querySelector('.gallery-grid') || document.getElementById('galleryGrid');
     
     if (!galleryGrid) return;
     
-    // Clear existing images
-    galleryGrid.innerHTML = '';
+    // Show loading
+    galleryGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--light-text); font-size: 18px; padding: 40px;">Loading images...</p>';
     
-    if (!galleryImages) {
-        // Show message if no images uploaded yet
-        galleryGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--light-text); font-size: 18px; padding: 40px;">No images uploaded yet. Upload images through the admin panel.</p>';
-        return;
-    }
-    
-    const images = JSON.parse(galleryImages);
-    
-    if (images.length === 0) {
-        galleryGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--light-text); font-size: 18px; padding: 40px;">No images uploaded yet. Upload images through the admin panel.</p>';
-        return;
-    }
-    
-    // Reverse array to show newest first
-    const sortedImages = [...images].reverse();
-    
-    // Add uploaded images from B2
-    sortedImages.forEach(image => {
-        const galleryItem = document.createElement('div');
-        galleryItem.className = 'gallery-item';
+    try {
+        const response = await fetch('https://mistress-milana-backend.vercel.app/api/images');
+        const data = await response.json();
         
-        galleryItem.innerHTML = `
-            <img src="${image.url}" alt="${image.originalName}" style="width: 100%; height: auto; display: block; border: 2px solid var(--border-color); border-radius: 5px; cursor: pointer;">
-        `;
+        // Clear loading message
+        galleryGrid.innerHTML = '';
         
-        galleryItem.addEventListener('click', () => {
-            openLightbox(image.url);
+        if (!data.success || !data.images || data.images.length === 0) {
+            galleryGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--light-text); font-size: 18px; padding: 40px;">No images uploaded yet. Upload images through the admin panel.</p>';
+            return;
+        }
+        
+        // Reverse array to show newest first
+        const sortedImages = [...data.images].reverse();
+        
+        // Add uploaded images from B2
+        sortedImages.forEach(image => {
+            const galleryItem = document.createElement('div');
+            galleryItem.className = 'gallery-item';
+            
+            galleryItem.innerHTML = `
+                <img src="${image.url}" alt="${image.fileName || 'Gallery image'}" style="width: 100%; height: auto; display: block; border: 2px solid var(--border-color); border-radius: 5px; cursor: pointer;">
+            `;
+            
+            galleryItem.addEventListener('click', () => {
+                openLightbox(image.url);
+            });
+            
+            galleryGrid.appendChild(galleryItem);
         });
-        
-        galleryGrid.appendChild(galleryItem);
-    });
+    } catch (error) {
+        console.error('Failed to load gallery:', error);
+        galleryGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--light-text); font-size: 18px; padding: 40px;">Failed to load images. Please try again later.</p>';
+    }
 }
 
 // Auto-refresh gallery when localStorage changes (from admin panel uploads)
