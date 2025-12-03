@@ -664,7 +664,7 @@ document.getElementById('newsForm').addEventListener('submit', async (e) => {
 
     } catch (error) {
         console.error('Error creating news card:', error);
-        alert('Failed to create event card. Make sure the backend server is running.');
+        alert('Failed to create event card: ' + error.message);
     } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = originalText;
@@ -674,9 +674,19 @@ document.getElementById('newsForm').addEventListener('submit', async (e) => {
 // Get News Cards from MongoDB
 async function getNewsCards() {
     try {
+        console.log('Fetching news cards from:', `${API_URL}/news`);
         const response = await fetch(`${API_URL}/news`);
-        if (!response.ok) throw new Error('Failed to fetch news cards');
-        return await response.json();
+        console.log('News cards response status:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Failed to fetch news cards:', response.status, errorText);
+            throw new Error('Failed to fetch news cards');
+        }
+        
+        const data = await response.json();
+        console.log('News cards data:', data);
+        return data;
     } catch (error) {
         console.error('Error fetching news cards:', error);
         return [];
@@ -686,6 +696,7 @@ async function getNewsCards() {
 // Save News Card to MongoDB
 async function saveNewsCard(newsCard) {
     try {
+        console.log('Saving news card:', newsCard);
         const response = await fetch(`${API_URL}/news`, {
             method: 'POST',
             headers: {
@@ -694,8 +705,18 @@ async function saveNewsCard(newsCard) {
             },
             body: JSON.stringify(newsCard)
         });
-        if (!response.ok) throw new Error('Failed to save news card');
-        return await response.json();
+        
+        console.log('Save news card response status:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Failed to save news card:', response.status, errorText);
+            throw new Error(`Failed to save news card: ${response.status} - ${errorText}`);
+        }
+        
+        const result = await response.json();
+        console.log('News card saved successfully:', result);
+        return result;
     } catch (error) {
         console.error('Error saving news card:', error);
         throw error;
@@ -705,9 +726,16 @@ async function saveNewsCard(newsCard) {
 // Load News Cards in Admin
 async function loadNewsCardsAdmin() {
     const newsCardsGrid = document.getElementById('newsCardsGrid');
+    
+    if (!newsCardsGrid) {
+        console.error('News cards grid element not found');
+        return;
+    }
+    
     const newsCards = await getNewsCards();
+    console.log('Loading news cards count:', newsCards.length);
 
-    if (newsCards.length === 0) {
+    if (!newsCards || newsCards.length === 0) {
         newsCardsGrid.innerHTML = `
             <div class="news-empty-state">
                 <div style="font-size: 60px; margin-bottom: 15px;">📰</div>
